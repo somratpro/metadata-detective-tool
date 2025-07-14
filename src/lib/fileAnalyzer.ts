@@ -1,7 +1,7 @@
 import ExifReader from "exifreader";
 import * as yaml from "js-yaml";
 import * as mammoth from "mammoth";
-import { parseBuffer } from "music-metadata";
+import { parseBlob } from "music-metadata";
 import * as pdfjsLib from "pdfjs-dist";
 
 // Configure PDF.js worker with simpler approach that avoids CDN issues
@@ -399,11 +399,8 @@ export class FileAnalyzer {
 
   static async analyzeAudio(file: File): Promise<FileMetadata> {
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const musicMetadata = await parseBuffer(
-        Buffer.from(arrayBuffer),
-        file.type
-      );
+      // Use parseBlob instead of parseBuffer for browser compatibility
+      const musicMetadata = await parseBlob(file);
 
       const metadata: FileMetadata = {
         basic: this.createBasicMetadata(file),
@@ -427,6 +424,11 @@ export class FileAnalyzer {
           : "N/A",
         composer: musicMetadata.common.composer?.join(", ") || "N/A",
         comment: musicMetadata.common.comment?.join(", ") || "N/A",
+        albumArtist: musicMetadata.common.albumartist || "N/A",
+        date: musicMetadata.common.date || "N/A",
+        label: musicMetadata.common.label?.join(", ") || "N/A",
+        isrc: musicMetadata.common.isrc?.join(", ") || "N/A",
+        barcode: musicMetadata.common.barcode || "N/A",
       };
 
       metadata.technical = {
@@ -447,12 +449,40 @@ export class FileAnalyzer {
         codec:
           musicMetadata.format.codec || musicMetadata.format.container || "N/A",
         lossless: musicMetadata.format.lossless ? "Yes" : "No",
+        bitsPerSample: musicMetadata.format.bitsPerSample || "N/A",
+        tagTypes: musicMetadata.format.tagTypes?.join(", ") || "N/A",
       };
 
       metadata.media = {
-        encoder: musicMetadata.format.tool || "N/A",
+        encoder:
+          musicMetadata.format.tool || musicMetadata.common.encodedby || "N/A",
         codecProfile: musicMetadata.format.codecProfile || "N/A",
+        container: musicMetadata.format.container || "N/A",
+        quality: musicMetadata.format.lossless ? "Lossless" : "Lossy",
       };
+
+      // Check for album art and additional metadata
+      if (
+        musicMetadata.common.picture &&
+        musicMetadata.common.picture.length > 0
+      ) {
+        const picture = musicMetadata.common.picture[0];
+        metadata.custom = {
+          albumArt: {
+            present: "Yes",
+            format: picture.format || "Unknown",
+            size: picture.data ? `${picture.data.length} bytes` : "Unknown",
+            description: picture.description || "N/A",
+            type: picture.type || "N/A",
+          },
+        };
+      } else {
+        metadata.custom = {
+          albumArt: {
+            present: "No",
+          },
+        };
+      }
 
       return metadata;
     } catch (error) {
