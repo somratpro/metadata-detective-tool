@@ -21,10 +21,14 @@ export const FileUpload = ({ onFileAnalysis }: FileUploadProps) => {
     
     try {
       // Use ExifReader to extract comprehensive metadata
-      const tags = await ExifReader.load(file, {
-        expanded: true, // Get expanded metadata structure
-        includeUnknown: true // Include unknown tags
+      const arrayBuffer = await file.arrayBuffer();
+      const tags = ExifReader.load(arrayBuffer, {
+        expanded: true
       });
+
+      console.log("ExifReader raw output:", tags);
+      console.log("ExifReader keys:", Object.keys(tags));
+      console.log("First 10 tags:", Object.keys(tags).slice(0, 10).map(key => `${key}: ${tags[key]?.description || tags[key]?.value || tags[key]}`));
 
       if (!tags || Object.keys(tags).length === 0) {
         throw new Error("No metadata found in this file");

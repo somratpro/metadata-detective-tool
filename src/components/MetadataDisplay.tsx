@@ -65,13 +65,16 @@ export const MetadataDisplay = ({ file, metadata, onClear }: MetadataDisplayProp
     URL.revokeObjectURL(url);
   };
 
-  // Extract metadata from ExifReader structure
-  const exifData = metadata.exif || {};
-  const gpsData = metadata.gps || {};
-  const iptcData = metadata.iptc || {};
-  const xmpData = metadata.xmp || {};
+  // ExifReader returns a flat object, not nested sections
+  console.log("MetadataDisplay received:", metadata);
+  console.log("Metadata keys:", Object.keys(metadata));
+  console.log("Sample metadata values:", {
+    Make: metadata["Make"],
+    Model: metadata["Model"], 
+    DateTime: metadata["DateTime"]
+  });
   
-  // Organize metadata into categories with ExifReader format
+  // Organize metadata into categories with direct ExifReader tags
   const categories = {
     basic: {
       icon: FileText,
@@ -81,79 +84,78 @@ export const MetadataDisplay = ({ file, metadata, onClear }: MetadataDisplayProp
         "File Size": `${(file.size / 1024 / 1024).toFixed(2)} MB`,
         "File Type": file.type,
         "Last Modified": new Date(file.lastModified).toLocaleString(),
-        "Image Width": extractValue(exifData["Image Width"] || exifData["ExifImageWidth"]),
-        "Image Height": extractValue(exifData["Image Height"] || exifData["ExifImageHeight"]),
+        "Image Width": extractValue(metadata["Image Width"] || metadata["ExifImageWidth"]),
+        "Image Height": extractValue(metadata["Image Height"] || metadata["ExifImageHeight"]),
       }
     },
     camera: {
       icon: Camera,
       title: "Camera & Settings",
       data: {
-        "Make": extractValue(exifData["Make"]),
-        "Model": extractValue(exifData["Model"]),
-        "Software": extractValue(exifData["Software"]),
-        "Lens Model": extractValue(exifData["LensModel"]),
-        "F-Number": extractValue(exifData["FNumber"]),
-        "Exposure Time": extractValue(exifData["ExposureTime"]),
-        "ISO": extractValue(exifData["ISOSpeedRatings"] || exifData["ISO"]),
-        "Focal Length": extractValue(exifData["FocalLength"]),
-        "Flash": extractValue(exifData["Flash"]),
-        "White Balance": extractValue(exifData["WhiteBalance"]),
-        "Metering Mode": extractValue(exifData["MeteringMode"]),
-        "Exposure Mode": extractValue(exifData["ExposureMode"]),
-        "Scene Type": extractValue(exifData["SceneType"]),
+        "Make": extractValue(metadata["Make"]),
+        "Model": extractValue(metadata["Model"]),
+        "Software": extractValue(metadata["Software"]),
+        "Lens Model": extractValue(metadata["LensModel"]),
+        "F-Number": extractValue(metadata["FNumber"]),
+        "Exposure Time": extractValue(metadata["ExposureTime"]),
+        "ISO": extractValue(metadata["ISOSpeedRatings"] || metadata["ISO"] || metadata["PhotographicSensitivity"]),
+        "Focal Length": extractValue(metadata["FocalLength"]),
+        "Flash": extractValue(metadata["Flash"]),
+        "White Balance": extractValue(metadata["WhiteBalance"]),
+        "Metering Mode": extractValue(metadata["MeteringMode"]),
+        "Exposure Mode": extractValue(metadata["ExposureMode"]),
+        "Scene Type": extractValue(metadata["SceneType"]),
       }
     },
     location: {
       icon: MapPin,
       title: "GPS Location",
       data: {
-        "Latitude": extractValue(gpsData["GPSLatitude"]),
-        "Longitude": extractValue(gpsData["GPSLongitude"]),
-        "Altitude": extractValue(gpsData["GPSAltitude"]),
-        "GPS Date/Time": extractValue(gpsData["GPSDateStamp"]),
-        "GPS Processing Method": extractValue(gpsData["GPSProcessingMethod"]),
-        "GPS Speed": extractValue(gpsData["GPSSpeed"]),
-        "GPS Direction": extractValue(gpsData["GPSImgDirection"]),
+        "Latitude": extractValue(metadata["GPSLatitude"]),
+        "Longitude": extractValue(metadata["GPSLongitude"]),
+        "Altitude": extractValue(metadata["GPSAltitude"]),
+        "GPS Date/Time": extractValue(metadata["GPSDateStamp"]),
+        "GPS Processing Method": extractValue(metadata["GPSProcessingMethod"]),
+        "GPS Speed": extractValue(metadata["GPSSpeed"]),
+        "GPS Direction": extractValue(metadata["GPSImgDirection"]),
       }
     },
     datetime: {
       icon: Calendar,
       title: "Date & Time",
       data: {
-        "Date Taken": extractValue(exifData["DateTimeOriginal"]),
-        "Date Modified": extractValue(exifData["DateTime"]),
-        "Date Digitized": extractValue(exifData["DateTimeDigitized"]),
-        "Timezone": extractValue(exifData["OffsetTime"]),
-        "Subsec Time": extractValue(exifData["SubSecTime"]),
+        "Date Taken": extractValue(metadata["DateTimeOriginal"]),
+        "Date Modified": extractValue(metadata["DateTime"]),
+        "Date Digitized": extractValue(metadata["DateTimeDigitized"]),
+        "Timezone": extractValue(metadata["OffsetTime"]),
+        "Subsec Time": extractValue(metadata["SubSecTime"]),
       }
     },
     technical: {
       icon: Smartphone,
       title: "Technical Details",
       data: {
-        "Color Space": extractValue(exifData["ColorSpace"]),
-        "Orientation": extractValue(exifData["Orientation"]),
-        "Resolution X": extractValue(exifData["XResolution"]),
-        "Resolution Y": extractValue(exifData["YResolution"]),
-        "Resolution Unit": extractValue(exifData["ResolutionUnit"]),
-        "Bits Per Sample": extractValue(exifData["BitsPerSample"]),
-        "Compression": extractValue(exifData["Compression"]),
-        "Photometric Interpretation": extractValue(exifData["PhotometricInterpretation"]),
-        "Samples Per Pixel": extractValue(exifData["SamplesPerPixel"]),
+        "Color Space": extractValue(metadata["ColorSpace"]),
+        "Orientation": extractValue(metadata["Orientation"]),
+        "Resolution X": extractValue(metadata["XResolution"]),
+        "Resolution Y": extractValue(metadata["YResolution"]),
+        "Resolution Unit": extractValue(metadata["ResolutionUnit"]),
+        "Bits Per Sample": extractValue(metadata["BitsPerSample"]),
+        "Compression": extractValue(metadata["Compression"]),
+        "Photometric Interpretation": extractValue(metadata["PhotometricInterpretation"]),
+        "Samples Per Pixel": extractValue(metadata["SamplesPerPixel"]),
       }
     },
     colors: {
       icon: Palette,
       title: "Color & Profile",
       data: {
-        "Color Profile": extractValue(metadata.icc?.ProfileDescription),
-        "Color Model": extractValue(metadata.icc?.ColorSpaceData),
-        "White Point": extractValue(exifData["WhitePoint"]),
-        "Primary Chromaticities": extractValue(exifData["PrimaryChromaticities"]),
-        "Y Cb Cr Coefficients": extractValue(exifData["YCbCrCoefficients"]),
-        "Copyright": extractValue(exifData["Copyright"] || iptcData["Copyright Notice"]),
-        "Artist": extractValue(exifData["Artist"] || iptcData["By-line"]),
+        "Color Profile": extractValue(metadata["ColorSpace"]),
+        "White Point": extractValue(metadata["WhitePoint"]),
+        "Primary Chromaticities": extractValue(metadata["PrimaryChromaticities"]),
+        "Y Cb Cr Coefficients": extractValue(metadata["YCbCrCoefficients"]),
+        "Copyright": extractValue(metadata["Copyright"]),
+        "Artist": extractValue(metadata["Artist"]),
       }
     }
   };
@@ -216,7 +218,7 @@ export const MetadataDisplay = ({ file, metadata, onClear }: MetadataDisplayProp
                 <div>
                   <span className="text-muted-foreground">Dimensions:</span>
                   <p className="font-mono">
-                    {extractValue(exifData["Image Width"] || exifData["ExifImageWidth"])} × {extractValue(exifData["Image Height"] || exifData["ExifImageHeight"])}
+                    {extractValue(metadata["Image Width"] || metadata["ExifImageWidth"])} × {extractValue(metadata["Image Height"] || metadata["ExifImageHeight"])}
                   </p>
                 </div>
                 <div>
@@ -234,11 +236,9 @@ export const MetadataDisplay = ({ file, metadata, onClear }: MetadataDisplayProp
             <CardTitle>Forensic Metadata Analysis</CardTitle>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary">
-                {Object.keys(metadata).reduce((count, section) => 
-                  count + (metadata[section] ? Object.keys(metadata[section]).length : 0), 0
-                )} Properties Found
+                {Object.keys(metadata).length} Properties Found
               </Badge>
-              {(gpsData["GPSLatitude"] && gpsData["GPSLongitude"]) && (
+              {(metadata["GPSLatitude"] && metadata["GPSLongitude"]) && (
                 <Badge variant="outline" className="text-primary">GPS Data Available</Badge>
               )}
             </div>
