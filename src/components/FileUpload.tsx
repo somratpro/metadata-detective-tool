@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
-import exifr from "exifr";
+import ExifReader from "exifreader";
 
 interface FileUploadProps {
   onFileAnalysis: (file: File, metadata: any) => void;
@@ -20,28 +20,20 @@ export const FileUpload = ({ onFileAnalysis }: FileUploadProps) => {
     setError(null);
     
     try {
-      // Use exifr to extract comprehensive metadata
-      const metadata = await exifr.parse(file, {
-        tiff: true,
-        xmp: true,
-        icc: true,
-        iptc: true,
-        jfif: true,
-        ihdr: true,
-        userComment: true,
-        gps: true,
-        interop: true,
-        pick: [] // Get everything
+      // Use ExifReader to extract comprehensive metadata
+      const tags = await ExifReader.load(file, {
+        expanded: true, // Get expanded metadata structure
+        includeUnknown: true // Include unknown tags
       });
 
-      if (!metadata || Object.keys(metadata).length === 0) {
+      if (!tags || Object.keys(tags).length === 0) {
         throw new Error("No metadata found in this file");
       }
 
-      onFileAnalysis(file, metadata);
+      onFileAnalysis(file, tags);
       toast({
         title: "Analysis Complete",
-        description: `Successfully extracted metadata from ${file.name}`,
+        description: `Successfully extracted ${Object.keys(tags).length} metadata sections from ${file.name}`,
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to analyze file";
