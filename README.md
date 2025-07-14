@@ -1,53 +1,94 @@
-# Welcome to your Lovable project
+# Universal File Metadata Analyzer
 
-## Project info
+A comprehensive metadata extraction and analysis tool for digital forensics investigations. This application can analyze a wide variety of file types and extract detailed metadata information.
 
-**URL**: https://lovable.dev/projects/60d5d528-e831-49cd-89f9-d2fd18997082
+## Features
 
-## How can I edit this code?
+### Supported File Types
 
-There are several ways of editing your application.
+#### 🖼️ Images
 
-**Use Lovable**
+- **Formats**: JPEG, PNG, TIFF, GIF, BMP, WebP, RAW
+- **Extracted Data**:
+  - EXIF data (camera settings, timestamps)
+  - GPS location information
+  - Camera and lens details
+  - Technical specifications (resolution, color space, etc.)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/60d5d528-e831-49cd-89f9-d2fd18997082) and start prompting.
+#### 📄 Documents
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Formats**: PDF, DOCX, TXT, JSON, YAML, XML, CSV
+- **Extracted Data**:
+  - Creation and modification dates
+  - Author information
+  - Content preview
+  - Document properties
+  - Security settings (for PDFs)
 
-**Use your preferred IDE**
+#### 🎵 Audio Files
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Formats**: MP3, WAV, FLAC, AAC, M4A, OGG, WMA
+- **Extracted Data**:
+  - ID3 tags (title, artist, album, year)
+  - Technical specs (bitrate, sample rate, codec)
+  - Duration and quality information
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### 🎬 Video Files (Basic Support)
 
-Follow these steps:
+- **Formats**: MP4, AVI, MOV, WMV, FLV, WebM, MKV
+- **Note**: Video files are detected but require server-side processing for detailed metadata extraction
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+#### 📦 Archive Files (Basic Support)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Formats**: ZIP, RAR, 7Z, TAR, GZ
+- **Note**: Archive files are detected and basic information is provided
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Usage
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. **Upload a file**: Drag and drop any supported file onto the upload area, or click to browse and select a file.
+
+2. **View metadata**: The app automatically analyzes the file and displays the metadata in organized categories:
+   - **Basic Info**: File name, size, type, modification date
+   - **Technical**: Technical specifications and format details
+   - **Content**: Content-specific information (varies by file type)
+   - **Media Info**: Media-specific metadata (for images, audio, video)
+   - **Security**: Security-related information (for documents)
+   - **Additional**: Extra metadata and raw data
+
+3. **Export data**: Copy metadata to clipboard or export as JSON for further analysis.
+
+## Technology Stack
+
+- **Frontend**: React + TypeScript + Vite
+- **UI Components**: Tailwind CSS + shadcn/ui
+- **Metadata Extraction Libraries**:
+  - `exifreader`: Image metadata extraction
+  - `pdfjs-dist`: PDF analysis
+  - `music-metadata`: Audio file analysis
+  - `mammoth`: Word document processing
+  - `js-yaml`: YAML file parsing
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## Security Note
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This tool is designed for digital forensics and security analysis. All file processing happens locally in your browser - no files are uploaded to external servers.
 
-**Use GitHub Codespaces**
+## Project Info
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
+**URL**: <https://lovable.dev/projects/60d5d528-e831-49cd-89f9-d2fd18997082>
+
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
 ## What technologies are used for this project?
